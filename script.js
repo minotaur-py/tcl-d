@@ -30,7 +30,7 @@ async function getCurrentSeason() {
     }
   }
 
-  // 🔥 BACKWARD-COMPATIBLE RETURN
+  //  BACKWARD-COMPATIBLE RETURN
   // Old code expects a number → keep it
   // New code wants extra info → include it
   return Object.assign(
@@ -110,7 +110,7 @@ function formatDate(ts) {
     day: "numeric"
   });
 
-  // Ensure month is capitalized: "jan 5" → "Jan 5"
+  
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
@@ -217,14 +217,14 @@ function ratingToIcon(rating) {
 const allPlayers = Object.entries(ratings).map(([id, v]) => {
   const [games, mu, sigma, wins, pCount, tCount, zCount, rCount, ts] = v;
 
-  const rating = v[21];   // ★ NEW: your new rating value from index 21
+  const rating = v[21];   
 
   const losses = games - wins;
   return { 
     id, games, mu, sigma, wins, losses,
     races: [pCount, zCount, tCount, rCount],
     ts,
-    rating            // ★ include it in player object
+    rating            
   };
 });
 
@@ -236,47 +236,71 @@ const allPlayers = Object.entries(ratings).map(([id, v]) => {
   // Assign ranks
   eligiblePlayers.forEach((p, idx) => p.rank = idx + 1);
 
-  // Render rows
-  tbody.innerHTML = ""; // clear existing
-  eligiblePlayers.forEach(p => {
-    const race = mostPlayedRace(p.races);
-    const playerName = names[p.id] || p.id;
+// Render rows
+tbody.innerHTML = ""; // clear existing
 
-const row = document.createElement("tr");
-row.classList.add("clickable");
+eligiblePlayers.forEach(p => {
+  const race = mostPlayedRace(p.races);
+  const playerName = names[p.id] || p.id;
 
-row.innerHTML = `
-  <td>
-    <a href="player.html?id=${p.id}" class="row-link">
-      ${p.rank}
-    </a>
-  </td>
-  <td>
-    <a href="player.html?id=${p.id}" class="row-link">
-      <span class="player-name" style="color:#89CFF0; font-size:1.2rem;">${playerName}</span><br>
-      <span class="race-subtext" style="font-size:0.8rem; color:#aaa;">${race}</span>
-    </a>
-  </td>
-  <td>
- <a href="player.html?id=${p.id}" class="row-link" style="display:flex; align-items:center; gap:6px;">
-  <img 
-    src="${ratingToIcon(p.rating)}"
-    alt=""
-    style="width:32px; height:16px; object-fit:contain; margin-right: 6px;"
-  >
-  ${p.rating}
-</a>
-</td>
-  <td><a href="player.html?id=${p.id}" class="row-link">${p.mu.toFixed(2)}</a></td>
-  <!--<td><a href="player.html?id=${p.id}" class="row-link">${p.sigma.toFixed(2)}</a></td>-->
-  <td style="color: #555555;"><a href="player.html?id=${p.id}" class="row-link">${p.sigma.toFixed(2)}</a></td>
-  <td><a href="player.html?id=${p.id}" class="row-link">${p.wins}-${p.losses}</a></td>
-  <td><a href="player.html?id=${p.id}" class="row-link">${timeAgo(p.ts)}</a></td>
-`;
+  const row = document.createElement("tr");
+  row.classList.add("clickable");
 
+  row.innerHTML = `
+    <!-- Left gutter column -->
+    <td></td>
 
-tbody.appendChild(row);
-  });
+    <!-- Rank -->
+    <td>
+      <a href="player.html?id=${p.id}" class="row-link">
+        ${p.rank}
+      </a>
+    </td>
+
+    <!-- Player -->
+    <td class="player-cell">
+      <a href="player.html?id=${p.id}" class="row-link">
+        <span class="player-name">${playerName}</span><br>
+        <span class="race-subtext">${race}</span>
+      </a>
+    </td>
+
+    <!-- Points / Rating -->
+    <td>
+      <a href="player.html?id=${p.id}" class="row-link rating-cell">
+        <img
+          src="${ratingToIcon(p.rating)}"
+          alt=""
+          class="rating-icon"
+        >
+        <span>${p.rating}</span>
+      </a>
+    </td>
+
+    <!-- MMR -->
+    <td>
+      <a href="player.html?id=${p.id}" class="row-link">
+        ${p.mu.toFixed(0)}
+      </a>
+    </td>
+
+    <!-- Win / Loss -->
+    <td>
+      <a href="player.html?id=${p.id}" class="row-link">
+        ${p.wins}-${p.losses}
+      </a>
+    </td>
+
+    <!-- Last Active -->
+    <td>
+      <a href="player.html?id=${p.id}" class="row-link">
+        ${timeAgo(p.ts)}
+      </a>
+    </td>
+  `;
+
+  tbody.appendChild(row);
+});
 
   // Update last updated timestamp
 const lastUpdatedEl = document.getElementById("last-updated");

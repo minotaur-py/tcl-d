@@ -62,7 +62,38 @@ async function loadPlayerPage() {
     Zerg: "#C1A3F5",
     Random: "#AABBCB"
   };
-  const mostPlayedColor = raceColors[mostPlayed] || "#AABBCB"; // Fallback to Random/Grey if race not found
+  const mostPlayedColor = raceColors[mostPlayed] || "#AABBCB"; 
+
+
+function ratingToIcon(rating) {                                 /* already in script.js - dedupe */
+  // determine bucket value (the third element in your ranges table)
+  let bucket;
+  if (rating <= 399) bucket = 0;
+  else if (rating <= 849) bucket = 1;
+  else if (rating <= 1999) bucket = 2;
+  else if (rating <= 2999) bucket = 3;
+  else if (rating <= 3999) bucket = 4;
+  else if (rating <= 4999) bucket = 5;
+  else if (rating <= 5999) bucket = 6;
+  else if (rating <= 6999) bucket = 7;
+  else if (rating <= 7999) bucket = 8;
+  else if (rating <= 8999) bucket = 9;
+  else if (rating <= 10499) bucket = 10;
+  else if (rating <= 11999) bucket = 11;
+  else if (rating <= 14499) bucket = 12;
+  else bucket = 13;
+
+  // map bucket → icon file
+  if (bucket <= 1) return "icons/d1.jpg";
+  if (bucket === 2) return "icons/d2.jpg";
+  if (bucket === 3) return "icons/d3.jpg";
+
+  if (bucket >= 4 && bucket <= 6) return `icons/c${bucket - 3}.jpg`;
+  if (bucket >= 7 && bucket <= 9) return `icons/b${bucket - 6}.jpg`;
+  if (bucket >= 10 && bucket <= 12) return `icons/a${bucket - 9}.jpg`;
+
+  return "icons/s.jpg";
+}
 
 
   const raceDisplayHTML = `
@@ -90,7 +121,16 @@ async function loadPlayerPage() {
          </tr>
          <tr>
            <td style="text-align: left; padding: 0;">Points:</td>
-           <td style="text-align: right; padding: 0;">${points}</td>
+           <td style="text-align: right; padding: 0;">
+  <span style="display:inline-flex; align-items:center; gap:6px;">
+    <img
+      src="${ratingToIcon(points)}"
+      alt=""
+      style="width:32px; height:16px; object-fit:contain;"
+    >
+    ${points}
+  </span>
+</td>
          </tr>
 
 
@@ -116,26 +156,7 @@ async function loadPlayerPage() {
     overviewEl.innerHTML = statsHTML;
   }
 
-  /*
-  // --- Determine most played race ---
-  const races = ["protoss", "terran", "zerg", "random"];
-  const mostPlayedIndex = playerStats.races.indexOf(Math.max(...playerStats.races));
-  let mainRace = races[mostPlayedIndex];
-  if (mainRace === "random") {
-    const base = ["protoss", "terran", "zerg"];
-    mainRace = base[Math.floor(Math.random() * base.length)];
-  }
 
-  // --- Apply background image ---
-  const overviewBox = document.querySelector(".overview-info");
-  if (overviewBox) {
-    overviewBox.style.backgroundImage = `url(assets/${mainRace}.webp)`;
-    overviewBox.style.backgroundSize = "cover";
-    overviewBox.style.backgroundPosition = "center";
-    overviewBox.style.backgroundBlendMode = "overlay";
-    overviewBox.style.backgroundColor = "#1c1c1caa";
-  }
-  */
 
 
 
@@ -323,7 +344,7 @@ async function loadPlayerPage() {
 
 
 
-  // --- Rating Chart with HTML tooltip ---
+  // points progression
   const ratingCanvas = document.getElementById("ratingChart");
   if (ratingCanvas && playerData && playerData.length > 0) {
     const ratingCtx = ratingCanvas.getContext("2d");
@@ -435,14 +456,14 @@ async function loadPlayerPage() {
   : p.ratingChange.toFixed(0);
                     const changeColor = isWinner ? "#34D399" : "#F87171";
                     const ratingAfter = p.rating.toFixed(0);
-const ratingBefore = (p.rating - p.ratingChange).toFixed(0);
-
+                    const ratingBefore = (p.rating - p.ratingChange).toFixed(0);
+                    const iconSrc = ratingToIcon(p.rating);
                     return `
                       <div style="
                         display: grid;
-                        grid-template-columns: auto 1fr min-content;
+                        grid-template-columns: auto 1fr 0px min-content;
                         align-items: center;
-                        column-gap: 8px;
+                        column-gap: 4px;
                         font-family: monospace;
                         margin-bottom: 2px;
                         white-space: nowrap;
@@ -453,12 +474,28 @@ const ratingBefore = (p.rating - p.ratingChange).toFixed(0);
                           text-overflow: ellipsis;
                           max-width: 265px;
                           display: inline-block;
+                          padding-right: 12px;
                         ">${p.name} (${info.name})</span>
-                        <span style="text-align: right; min-width: 85px;">
-                          ${ratingAfter}
-<span style="color:white;">(</span><span style="color:${changeColor};">${change}</span><span style="color:white;">)</span>
+                        <!-- ICON COLUMN -->
+<span style="display:flex; justify-content:center;">
+  <img
+    src="${iconSrc}"
+    alt=""
+    style="width:22px; height:14px; object-fit:contain;"
+  >
+</span>
 
-                        </span>
+
+
+
+<!-- RATING COLUMN -->
+<span style="
+  text-align: right;
+  min-width: 90px;
+">
+  ${ratingAfter}
+  <span style="color:white;">(</span><span style="color:${changeColor};">${change}</span><span style="color:white;">)</span>
+</span>
                       </div>`;
                   }).join("");
                   return `<div style="margin-top:4px;"><strong>${label}:</strong>${players}</div>`;
@@ -506,7 +543,20 @@ const ratingBefore = (p.rating - p.ratingChange).toFixed(0);
     drawRatingChart();
   }
 
-  // --- Match list rendering ---
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // --- Match list  ---
   const container = document.getElementById("matches");
   if (!container) return;
 
@@ -527,12 +577,13 @@ function playerCard(p) {
 
   // Points
   const pts = Number(points ?? 0).toFixed(0);
+  const pointsIcon = ratingToIcon(Number(points ?? 0));
   const ptsDelta = pointsChange ?? 0;
   const ptsDeltaStr =
     ptsDelta > 0 ? `+${ptsDelta.toFixed(0)}` : ptsDelta.toFixed(0);
   const ptsColor =
     ptsDelta > 0 ? "#34D399" : ptsDelta < 0 ? "#F87171" : "#bbb";
-
+ 
   // MMR
   const rating = Number(mu).toFixed(2);
   const mmrDelta = muChange ?? 0;
@@ -547,10 +598,25 @@ function playerCard(p) {
 
       <a href="player.html?id=${id}" class="player-name">${name}</a>
 
-      <div class="player-points">${pts}</div>
+      <div class="player-points" style="display:flex; align-items:center; gap:7px;">
+  <img
+    src="${pointsIcon}"
+    alt=""
+    style="width:28px; height:14px; object-fit:contain;"
+  >
+  <span>${pts}</span>
+</div>
+
+
       <div class="player-points-change" style="color:${ptsColor}">${ptsDeltaStr}</div>
 
-      <div class="player-rating">${rating}</div>
+
+
+<div class="player-rating">${rating}</div>
+
+
+
+
       <div class="player-change" style="color:${mmrColor}">${mmrDeltaStr}</div>
     </div>
   `;
@@ -828,16 +894,17 @@ function drawPerGameChart(data) {
 }
 
 
+function formatValue(value, mode) {
+  if (mode === "total") {
+    return Math.round(value).toString();
+  }
 
-
-
-
-
-
-
-
-
-
+  // pergame: show decimals only if needed
+  const rounded = Math.round(value * 100) / 100;
+  return Number.isInteger(rounded)
+    ? rounded.toString()
+    : rounded.toString();
+}
 
 
 
@@ -923,7 +990,7 @@ function drawPerGameChart(data) {
               ? (mode === "total" ? "Points lost" : "Points lost per game")
               : (mode === "total" ? "Points gained" : "Points gained per game");
 
-          const mmrAbs = Math.abs(mmrValue).toFixed(2);
+          const mmrAbs = formatValue(Math.abs(mmrValue), mode);
 
           // -----------------------------------------------------------
           // HTML (two-line layout)
@@ -1278,7 +1345,7 @@ function matchupChartOptions(mode, list, barThickness = 44) {
 
     const wr = games > 0 ? (wins / games) * 100 : 0;
     const mmrValue = mode === "total" ? total : perGame;
-    const mmrAbs = Math.abs(mmrValue).toFixed(2);
+    const mmrAbs = formatValue(Math.abs(mmrValue), mode);
     const mmrLabel =
       mmrValue < 0
         ? (mode === "total" ? "Points lost" : "Points lost per game")
@@ -1659,7 +1726,7 @@ function drawer3ChartOptions(mode, list, barThickness) {
 
           const wr = games > 0 ? (wins / games) * 100 : 0;
           const mmrValue = mode === "total" ? total : perGame;
-          const mmrAbs = Math.abs(mmrValue).toFixed(2);
+          const mmrAbs = formatValue(Math.abs(mmrValue), mode);
           const mmrLabel =
             mmrValue < 0
               ? (mode === "total" ? "Points lost" : "Points lost per game")
@@ -2000,7 +2067,9 @@ function drawer4ChartOptions(mode, list, barThickness) {
   const { allyName, wins, losses, games, total, perGame } = entry;
   const wr = games > 0 ? (wins / games) * 100 : 0;
   const mmrValue = mode === "total" ? total : perGame;
-  const absVal = Math.abs(mmrValue).toFixed(2);
+ /* const absVal = Math.abs(mmrValue).toFixed(2); */
+
+const absVal = formatValue(Math.abs(mmrValue), mode);
 
   tooltipEl.innerHTML = `
     <div style="font-weight:bold;margin-bottom:3px;">${allyName}</div>
