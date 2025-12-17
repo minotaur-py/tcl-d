@@ -142,7 +142,7 @@ header p {
 th,
 td {
     padding: 10px 14px;
-    text-align: left;
+    text-align: center;
     
     overflow: hidden;
     text-overflow: ellipsis;
@@ -156,6 +156,12 @@ th {
     font-size: 0.85rem;
     letter-spacing: 0.05em;
 }
+
+.text-left {
+    text-align: left;
+}
+
+
 
 
 tr:nth-child(even) {
@@ -189,15 +195,15 @@ td a.row-link {
 
 
 
-
-.leaderboard-table col.col-rank { width: 122px; }
+.col-gutter-left { width: 42px; } 
+.leaderboard-table col.col-rank { width: 172px; }
 .leaderboard-table col.col-player { width: 220px; }
-.leaderboard-table col.col-rating { width: 10px; }
-.leaderboard-table col.col-mmr { width: 122px; }
-.leaderboard-table col.col-uncertainty { width: 192px; }
-.leaderboard-table col.col-wl { width: 190px; }
-.leaderboard-table col.col-lastplayed { width: 220px; }
-.col-gutter { width: 76px; } 
+.leaderboard-table col.col-rating { width: 142px; }
+.leaderboard-table col.col-mmr { width: 142px; }
+
+.leaderboard-table col.col-wl { width: 142px; }
+.leaderboard-table col.col-lastplayed { width: 180px; }
+.col-gutter-right { width: 72px; } 
 
 
 .leaderboard-table th:first-child,
@@ -205,11 +211,16 @@ td a.row-link {
     padding-left: 76px;
 }
 
+.leaderboard-table th:last-child,
+.leaderboard-table td:last-child {
+    padding-right: 76px;
+}
 
 .player-cell {
     
     color: #89CFF0;
     font-size: 1.2rem;
+    text-align: left
 }
 
 
@@ -236,6 +247,26 @@ td a.row-link {
     height: 18px;
     object-fit: contain;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
 </head>
 <body>
@@ -257,26 +288,42 @@ td a.row-link {
       <table id="leaderboard" class="leaderboard-table">
         <!-- Fixed column sizing -->
       <colgroup>
-  <col class="col-gutter">
+  <col class="col-gutter-left">
   <col class="col-rank">
   <col class="col-player">
   <col class="col-points">
   <col class="col-mmr">
   <col class="col-wl">
   <col class="col-lastplayed">
+  <col class="col-gutter-right"> </colgroup>
 </colgroup>
+
+
+
+
 
 <thead>
   <tr>
-    <th></th>
-    <th>Rank</th>
-    <th>Player</th>
+    <th></th> <th>Rank</th>
+    <th class="text-left">Player</th>
     <th>Points</th>
     <th>MMR</th>
     <th>Win/Loss</th>
     <th>Last Active</th>
-  </tr>
+    <th></th> </tr>
 </thead>
+
+
+
+
+
+
+
+
+
+
+
+
 
         <tbody></tbody>
       </table>

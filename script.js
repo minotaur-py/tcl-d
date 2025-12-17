@@ -250,14 +250,14 @@ eligiblePlayers.forEach(p => {
     <!-- Left gutter column -->
     <td></td>
 
-    <!-- Rank -->
+    
     <td>
       <a href="player.html?id=${p.id}" class="row-link">
         ${p.rank}
       </a>
     </td>
 
-    <!-- Player -->
+    
     <td class="player-cell">
       <a href="player.html?id=${p.id}" class="row-link">
         <span class="player-name">${playerName}</span><br>
@@ -265,7 +265,7 @@ eligiblePlayers.forEach(p => {
       </a>
     </td>
 
-    <!-- Points / Rating -->
+   
     <td>
       <a href="player.html?id=${p.id}" class="row-link rating-cell">
         <img
@@ -277,27 +277,27 @@ eligiblePlayers.forEach(p => {
       </a>
     </td>
 
-    <!-- MMR -->
+    
     <td>
       <a href="player.html?id=${p.id}" class="row-link">
         ${p.mu.toFixed(0)}
       </a>
     </td>
 
-    <!-- Win / Loss -->
+    
     <td>
       <a href="player.html?id=${p.id}" class="row-link">
         ${p.wins}-${p.losses}
       </a>
     </td>
 
-    <!-- Last Active -->
+    
     <td>
       <a href="player.html?id=${p.id}" class="row-link">
         ${timeAgo(p.ts)}
       </a>
     </td>
-  `;
+  <td></td> `;
 
   tbody.appendChild(row);
 });
